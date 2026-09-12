@@ -368,6 +368,68 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   // =========================================================================
+  // SCENE 3.5: 3D FOLDED MARQUEE ACCORDION (exact tt.md logic & ranges)
+  // =========================================================================
+  const foldSection = document.querySelector(".fold-section");
+  if (foldSection) {
+    const centerFold = document.getElementById("center-fold");
+    const centerContent = document.getElementById("center-content");
+    const foldsContent = Array.from(foldSection.querySelectorAll(".fold-content"));
+
+    // Pinned wrapper timeline for the fold effect
+    const foldTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: foldSection,
+        start: "top top",
+        end: "+=320%",
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    // Marquee horizontal animation scrub: exactly [-500, -1500] and [-500, 0]
+    // Animate across all folds simultaneously
+    [0, 1, 2, 3].forEach((index) => {
+      const [xStart, xEnd] =
+        index % 2 === 0 ? [-500, -1500] : [-500, 0];
+      const tracks = foldSection.querySelectorAll(
+        `.fold-content .marquee:nth-child(${index + 1}) .track`,
+      );
+
+      foldTimeline.fromTo(
+        tracks,
+        { x: xStart },
+        {
+          x: xEnd,
+          ease: "none",
+          duration: 1,
+        },
+        0,
+      );
+    });
+
+    // Vertical fold content travel calculation from tt.md:
+    // overflowHeight = centerContent.clientHeight - centerFold.clientHeight
+    const getOverflow = () => {
+      if (!centerContent || !centerFold) return 600;
+      return Math.max(0, centerContent.scrollHeight - centerFold.clientHeight);
+    };
+
+    foldTimeline.fromTo(
+      foldsContent,
+      { y: 0 },
+      {
+        y: () => -getOverflow(),
+        ease: "none",
+        duration: 1,
+      },
+      0,
+    );
+  }
+
+  // =========================================================================
   // SCENE 4: PINNED 3D OVERLAPPING STACK CARDS
   // =========================================================================
   const stackSection = document.querySelector(".stack-section");
