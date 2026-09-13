@@ -518,102 +518,195 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   // =========================================================================
-  // SCENE 5: PINNED 3-COLUMN COUNTER-SCROLLING RUNWAY
+  // SCENE 5: SCROLL-DRIVEN ARCHITECTURAL CROSSFADES (from tt.md)
   // =========================================================================
-  const runwaySection = document.querySelector(".runway-section");
-  const col1 = document.querySelector(".runway-col.col-1");
-  const col2 = document.querySelector(".runway-col.col-2");
-  const col3 = document.querySelector(".runway-col.col-3");
-  const runwayBadge = document.querySelector(".runway-badge");
+  const scene5Swappers = document.querySelectorAll(".scene5-crossfades .swapper");
 
-  // Initial column positions: col 1 & 3 start at y: 0, col 2 starts pulled up
-  gsap.set(col1, { yPercent: 15 });
-  gsap.set(col2, { yPercent: -45 });
-  gsap.set(col3, { yPercent: 20 });
+  scene5Swappers.forEach((swapper) => {
+    const parentBox = swapper.closest(".image-box");
+    const controller = parentBox ? parentBox.querySelector(".controller") : null;
+    const images = swapper.querySelectorAll("img");
+    const progressDiv = swapper.querySelector(".progress");
+    const progressMarkers = swapper.querySelectorAll(".progress > div div");
 
-  const runwayTimeline = gsap.timeline({
-    scrollTrigger: {
-      trigger: runwaySection,
-      start: "top top",
-      end: "+=400%",
-      pin: true,
-      pinSpacing: true,
-      scrub: 1,
-      invalidateOnRefresh: true,
-    },
+    // Responsive setup: desktop vs mobile
+    ScrollTrigger.matchMedia({
+      // Desktop: Smooth translation down the tall controller column + crisp crossfade + dual progress
+      "(min-width: 901px)": function () {
+        if (controller) {
+          const moveDist = () => controller.offsetHeight - swapper.offsetHeight;
+          gsap.to(swapper, {
+            y: () => moveDist(),
+            ease: "none",
+            scrollTrigger: {
+              trigger: parentBox,
+              start: "top center",
+              end: "bottom center",
+              scrub: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+
+        // Fast & crisp image crossfade centered around midpoint, completing fully (opacity: 1)
+        if (images.length > 1) {
+          gsap.fromTo(
+            images[1],
+            { opacity: 0 },
+            {
+              opacity: 1,
+              ease: "power2.inOut",
+              scrollTrigger: {
+                trigger: parentBox,
+                start: "center 68%",
+                end: "center 36%",
+                scrub: true,
+              },
+            },
+          );
+        }
+
+        // Progress bar markers completing in sequence
+        if (progressMarkers.length >= 2) {
+          gsap.fromTo(
+            progressMarkers[0],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: parentBox,
+                start: "top 60%",
+                end: "center 55%",
+                scrub: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            progressMarkers[1],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: parentBox,
+                start: "center 55%",
+                end: "bottom 55%",
+                scrub: true,
+              },
+            },
+          );
+        }
+      },
+
+      // Mobile: In-place fast crossfade & progress driven by swapper trigger
+      "(max-width: 900px)": function () {
+        if (images.length > 1) {
+          gsap.fromTo(
+            images[1],
+            { opacity: 0 },
+            {
+              opacity: 1,
+              ease: "power2.inOut",
+              scrollTrigger: {
+                trigger: swapper,
+                start: "top 65%",
+                end: "bottom 45%",
+                scrub: true,
+              },
+            },
+          );
+        }
+
+        if (progressMarkers.length >= 2) {
+          gsap.fromTo(
+            progressMarkers[0],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: swapper,
+                start: "top 75%",
+                end: "center center",
+                scrub: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            progressMarkers[1],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: swapper,
+                start: "center center",
+                end: "bottom 35%",
+                scrub: true,
+              },
+            },
+          );
+        }
+      },
+    });
   });
 
-  // Center badge scale entrance & gentle pulse
-  runwayTimeline.from(
-    runwayBadge,
-    {
-      scale: 0.85,
-      opacity: 0,
-      duration: 0.3,
-      ease: "power2.out",
-    },
-    0,
-  );
-
-  // Counter directions: col1 moves UP, col2 moves DOWN, col3 moves UP
-  runwayTimeline.to(
-    col1,
-    {
-      yPercent: -45,
-      duration: 1,
-      ease: "none",
-    },
-    0,
-  );
-
-  runwayTimeline.to(
-    col2,
-    {
-      yPercent: 15,
-      duration: 1,
-      ease: "none",
-    },
-    0,
-  );
-
-  runwayTimeline.to(
-    col3,
-    {
-      yPercent: -40,
-      duration: 1,
-      ease: "none",
-    },
-    0,
-  );
 
   // =========================================================================
-  // SCENE 6: FULL-SCREEN CURTAIN WIPE / DAY-TO-NIGHT REVEAL
   // =========================================================================
-  const curtainSection = document.querySelector(".curtain-section");
-  const layerTop = document.querySelector(".layer-top");
-  const curtainLine = document.querySelector(".curtain-line");
-  const headlineNight = document.querySelector(".headline-night");
-  const headlineWords = document.querySelectorAll(".headline-layer .word");
-  const infoLeft = document.querySelector(".info-left");
-  const infoRight = document.querySelector(".info-right");
-  const imgDay = document.querySelector(".img-day");
-  const imgNight = document.querySelector(".img-night");
-  const timeVal = document.querySelector(".curtain-hud .time-val");
-  const timePeriod = document.querySelector(".curtain-hud .time-period");
-  const luxVal = document.querySelector(".curtain-hud .lux-val");
+  // =========================================================================
+  // SCENE 6: DUAL-COLUMN ARCHITECTURAL MORPH (sw.md Pure Slide Experience)
+  // =========================================================================
+  const scene6Section = document.querySelector(".scene6-section");
+  const slideNight = document.querySelector(".slide-night");
+  const dayTitleLines = document.querySelectorAll(".slide-day .line__inner");
+  const dayTxt = document.querySelector(".slide-day .scene6-txt");
+  const dayLink = document.querySelector(".slide-day .scene6-link");
+  const dayImgWrap = document.querySelector(".slide-day .scene6-image-wrap");
 
-  // Initial state setup for cards and layers
-  gsap.set(infoLeft, { opacity: 1, x: 0, y: 0, filter: "blur(0px)" });
-  gsap.set(infoRight, { opacity: 0, x: 60, y: 0, filter: "blur(10px)" });
-  gsap.set(imgDay, { scale: 1 });
-  gsap.set(imgNight, { scale: 1.1 });
+  const nightTitleLines = document.querySelectorAll(".slide-night .line__inner");
+  const nightTxt = document.querySelector(".slide-night .scene6-txt");
+  const nightLink = document.querySelector(".slide-night .scene6-link");
+  const nightImgWrap = document.querySelector(".slide-night .scene6-image-wrap");
 
-  // Telemetry time interpolation object
-  const timeTelemetry = { minutes: 7 * 60 + 45, lux: 94200 }; // 07:45 AM (465 mins) to 09:30 PM (1290 mins)
+  const timeVal = document.querySelector(".scene6-hud .time-val");
+  const timePeriod = document.querySelector(".scene6-hud .time-period");
+  const luxVal = document.querySelector(".scene6-hud .lux-val");
 
-  const curtainTimeline = gsap.timeline({
+  // Initial states
+  gsap.set(dayTitleLines, { y: 0, opacity: 1 });
+  if (dayTxt) gsap.set(dayTxt, { x: 0, opacity: 1 });
+  if (dayLink) gsap.set(dayLink, { x: 0, opacity: 1 });
+  if (dayImgWrap) gsap.set(dayImgWrap, { y: "-10vh" });
+
+  gsap.set(slideNight, {
+    clipPath: "polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)",
+  });
+  gsap.set(nightTitleLines, { y: 160, opacity: 0 });
+  if (nightTxt) gsap.set(nightTxt, { x: 80, opacity: 0 });
+  if (nightLink) gsap.set(nightLink, { x: -60, opacity: 0 });
+  if (nightImgWrap) gsap.set(nightImgWrap, { y: "-35vh" });
+
+  // Interactive slide link effects from sw.md
+  [dayLink, nightLink].forEach((link) => {
+    if (!link) return;
+    const circ = link.querySelector(".slide-link__circ");
+    const line = link.querySelector(".slide-link__line");
+
+    link.addEventListener("mouseenter", () => {
+      gsap.to(circ, { scale: 1.15, duration: 0.4, ease: "power3.out" });
+      gsap.to(line, { x: 10, scaleX: 1.15, transformOrigin: "left center", duration: 0.4, ease: "power3.out" });
+    });
+    link.addEventListener("mouseleave", () => {
+      gsap.to(circ, { scale: 1, duration: 0.4, ease: "power3.out" });
+      gsap.to(line, { x: 0, scaleX: 1, transformOrigin: "left center", duration: 0.4, ease: "power3.out" });
+    });
+  });
+
+  const scene6Timeline = gsap.timeline({
     scrollTrigger: {
-      trigger: curtainSection,
+      trigger: scene6Section,
       start: "top top",
       end: "+=380%",
       pin: true,
@@ -621,7 +714,7 @@ document.addEventListener("DOMContentLoaded", () => {
       scrub: 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
-        // Dynamic time readout synchronized to scroll progress
+        // Dynamic chrono telemetry readout: 07:45 AM (465m) to 09:30 PM (1290m)
         const currentMins = Math.round(465 + self.progress * (1290 - 465));
         const hours24 = Math.floor(currentMins / 60);
         const mins = currentMins % 60;
@@ -631,137 +724,129 @@ document.addEventListener("DOMContentLoaded", () => {
         if (timeVal) timeVal.textContent = timeStr;
         if (timePeriod) timePeriod.textContent = period;
 
-        // Dynamic lux calculation
-        const currentLux = Math.round(94200 * Math.pow(1 - self.progress, 2.5) + 40);
+        // Dynamic light lux
+        const currentLux = Math.round(94200 * Math.pow(1 - self.progress, 2.5) + 20);
         if (luxVal) luxVal.textContent = `${currentLux.toLocaleString()} lx`;
       },
     },
   });
 
-  // 1. Wipe top night layer across screen from right to left (100% -> 0%)
-  curtainTimeline.fromTo(
-    layerTop,
-    { clipPath: "polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%)" },
-    {
-      clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-      duration: 1,
-      ease: "none",
-    },
-    0,
-  );
-
-  // 2. Synchronized clipping for the top Night kinetic headline
-  if (headlineNight) {
-    curtainTimeline.fromTo(
-      headlineNight,
-      { clipPath: "polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%)" },
+  // 1. Parallax drift on Day image wrapper (sw.md style: 160vh image gliding through window)
+  if (dayImgWrap) {
+    scene6Timeline.to(
+      dayImgWrap,
       {
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-        duration: 1,
+        y: "25vh",
+        duration: 0.6,
         ease: "none",
       },
       0,
     );
   }
 
-  // 3. Move divider line with handle in precision lockstep
-  curtainTimeline.fromTo(
-    curtainLine,
-    { left: "100%" },
-    {
-      left: "0%",
-      duration: 1,
-      ease: "none",
-    },
-    0,
-  );
-
-  // 4. Subtle background zoom / parallax for cinematic depth
-  if (imgDay) {
-    curtainTimeline.to(
-      imgDay,
+  // 2. Day typography & link transition out (y translation + masked overflow stagger)
+  if (dayTitleLines.length) {
+    scene6Timeline.to(
+      dayTitleLines,
       {
-        scale: 1.08,
-        filter: "brightness(0.7) contrast(1.1)",
-        duration: 1,
-        ease: "none",
-      },
-      0,
-    );
-  }
-  if (imgNight) {
-    curtainTimeline.to(
-      imgNight,
-      {
-        scale: 1,
-        duration: 1,
-        ease: "none",
-      },
-      0,
-    );
-  }
-
-  // 5. Kinetic tracking on the headline text across scroll
-  curtainTimeline.to(
-    ".headline-layer",
-    {
-      letterSpacing: "0.08em",
-      scale: 1.05,
-      duration: 1,
-      ease: "power1.inOut",
-    },
-    0,
-  );
-
-  // 6. Day Info Card exits with smooth slide, blur and fade
-  if (infoLeft) {
-    curtainTimeline.to(
-      infoLeft,
-      {
+        y: -140,
         opacity: 0,
-        x: -80,
-        y: -20,
-        filter: "blur(12px)",
+        stagger: 0.06,
         duration: 0.35,
+        ease: "power3.in",
+      },
+      0.12,
+    );
+  }
+  if (dayTxt) {
+    scene6Timeline.to(
+      dayTxt,
+      {
+        x: -50,
+        opacity: 0,
+        duration: 0.3,
         ease: "power2.in",
       },
-      0.15,
+      0.12,
+    );
+  }
+  if (dayLink) {
+    scene6Timeline.to(
+      dayLink,
+      {
+        x: -40,
+        opacity: 0,
+        duration: 0.25,
+        ease: "power2.in",
+      },
+      0.14,
     );
   }
 
-  // 7. Night Info Card enters with crisp unblur, title stagger, and metrics pop
-  if (infoRight) {
-    curtainTimeline.to(
-      infoRight,
+  // 3. Slide Night unveils vertically over Slide Day (sw.md slide unmasking)
+  scene6Timeline.to(
+    slideNight,
+    {
+      clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+      duration: 0.7,
+      ease: "power2.inOut",
+    },
+    0.3,
+  );
+
+  // 4. Parallax drift on Night image wrapper (-35vh -> 15vh)
+  if (nightImgWrap) {
+    scene6Timeline.to(
+      nightImgWrap,
       {
-        opacity: 1,
-        x: 0,
+        y: "15vh",
+        duration: 0.7,
+        ease: "none",
+      },
+      0.3,
+    );
+  }
+
+  // 5. Night typography & link entrance (sw.md: rising from overflow mask with power4 ease)
+  if (nightTitleLines.length) {
+    scene6Timeline.to(
+      nightTitleLines,
+      {
         y: 0,
-        filter: "blur(0px)",
+        opacity: 1,
+        stagger: 0.1,
+        duration: 0.5,
+        ease: "power4.out",
+      },
+      0.5,
+    );
+  }
+  if (nightTxt) {
+    scene6Timeline.to(
+      nightTxt,
+      {
+        x: 0,
+        opacity: 1,
         duration: 0.45,
         ease: "power3.out",
       },
-      0.55,
-    );
-
-    curtainTimeline.fromTo(
-      ".info-right .metric-pill",
-      {
-        opacity: 0,
-        y: 20,
-        scale: 0.9,
-      },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        stagger: 0.08,
-        duration: 0.3,
-        ease: "back.out(1.7)",
-      },
-      0.72,
+      0.58,
     );
   }
+  if (nightLink) {
+    scene6Timeline.to(
+      nightLink,
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.4,
+        ease: "power3.out",
+      },
+      0.64,
+    );
+  }
+
+
 
   // =========================================================================
   // SCENE 7: MONUMENTAL PORTAL ZOOM & KINETIC FOOTER
@@ -847,4 +932,3 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
- 
