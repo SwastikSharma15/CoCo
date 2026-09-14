@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
 
 :root {
 	--base-100: #f0f0e6;
@@ -148,8 +148,15 @@ p {
 }
 
 @keyframes mouseScroll {
-	0% { opacity: 1; transform: translate(-50%, 0); }
-	100% { opacity: 0; transform: translate(-50%, 12px); }
+	0% {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translate(-50%, 12px);
+	}
 }
 
 .hero-revealer {
@@ -380,7 +387,7 @@ p {
 	position: absolute;
 	inset: 0;
 	padding: 2rem;
-	background: linear-gradient(180deg, rgba(15,15,15,0.1) 40%, rgba(15,15,15,0.85) 100%);
+	background: linear-gradient(180deg, rgba(15, 15, 15, 0.1) 40%, rgba(15, 15, 15, 0.85) 100%);
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
@@ -800,125 +807,247 @@ p {
 }
 
 /* ==========================================================================
-   SCENE 5: PINNED 3-COLUMN COUNTER-SCROLLING RUNWAY
+   SCENE 5: SCROLL-DRIVEN ARCHITECTURAL CROSSFADES (from tt.md)
    ========================================================================== */
-.runway-section {
+.scene5-crossfades {
 	position: relative;
 	width: 100%;
-	height: 100svh;
 	background-color: var(--base-300);
 	color: var(--base-100);
+	padding: 8rem 0 10rem;
 	overflow: hidden;
 	z-index: 6;
+
+	--left-pad: clamp(1.5rem, 5vw, 4rem);
+	--container-width: calc(100vw - (var(--left-pad) * 2));
+	--column-one: calc(var(--container-width) * (1.2 / 3.2));
+	--column-two: calc(var(--container-width) * (2 / 3.2));
+	--col-one-height: min(65vh, calc((380 / 272) * var(--column-one)));
+	--col-two-height: min(105vh, calc((1148 / 940) * var(--column-two)));
+	--catch-up: calc(var(--col-two-height) - var(--col-one-height));
 }
 
-.runway-container {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
+.scene5-header {
 	display: flex;
-	justify-content: center;
+	flex-direction: column;
 	align-items: center;
-}
-
-.runway-badge {
-	position: absolute;
-	z-index: 10;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
 	text-align: center;
-	padding: 2.5rem 3.5rem;
-	background: rgba(15, 15, 15, 0.88);
-	backdrop-filter: blur(20px);
-	border: 1px solid rgba(240, 240, 230, 0.2);
-	border-radius: 6px;
-	max-width: 540px;
-	box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
-	pointer-events: none;
+	margin-bottom: 6rem;
+	padding: 0 2rem;
 }
 
-.badge-tag {
+.scene5-eyebrow {
 	font-size: 0.85rem;
 	letter-spacing: 0.2em;
 	text-transform: uppercase;
 	color: var(--base-200);
 	font-weight: 600;
-	margin-bottom: 0.75rem;
-	display: inline-block;
-}
-
-.runway-badge h2 {
-	font-size: clamp(2rem, 3.2vw, 3.2rem);
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: -0.02em;
-	line-height: 1.05;
 	margin-bottom: 0.8rem;
 }
 
-.runway-badge p {
-	font-size: 0.95rem;
+.scene5-main-title {
+	font-family: 'Cinzel', serif;
+	font-size: clamp(2.8rem, 5.5vw, 5.5rem);
+	font-weight: 400;
+	text-transform: uppercase;
+	letter-spacing: -0.02em;
+	line-height: 1.05;
+	color: var(--base-100);
+	margin-bottom: 0.8rem;
+}
+
+.scene5-sub {
+	font-size: 1rem;
 	text-transform: none;
 	color: rgba(240, 240, 230, 0.65);
-	line-height: 1.4;
+	max-width: 500px;
 }
 
-.runway-columns {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 2.5vw;
-	width: 100%;
-	height: 100%;
-	padding: 0 3vw;
-}
-
-.runway-col {
+.scene5-items {
 	display: flex;
 	flex-direction: column;
-	gap: 2.5vw;
+	gap: 12rem;
+	width: 100%;
+}
+
+.scene5-item {
+	width: 100%;
+}
+
+/* tt.md image-box layout */
+.image-box {
+	display: grid;
+	gap: 2rem;
+	padding: 1rem var(--left-pad);
+	min-height: var(--col-two-height);
+	grid-template-columns: 1.2fr 2fr;
+	align-items: flex-start;
+}
+
+.scene5-item:nth-child(even) .image-box {
+	grid-template-columns: 2fr 1.2fr;
+}
+
+/* Swapper container */
+.swapper {
+	height: var(--col-one-height);
+	width: 100%;
+	position: relative;
+	border-radius: 6px;
+	overflow: hidden;
+	isolation: isolate;
+	background: #141414;
+	box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
 	will-change: transform;
 }
 
-.runway-item {
-	position: relative;
-	width: 100%;
-	height: clamp(340px, 46svh, 520px);
-	border-radius: 4px;
-	overflow: hidden;
-	background-color: #191919;
-	flex-shrink: 0;
-	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-}
-
-.runway-item img {
+.swapper img {
+	position: absolute;
+	inset: 0;
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	transform: scale(1.08);
-	transition: transform 0.6s ease;
+	border-radius: 6px;
+	will-change: opacity;
 }
 
-.runway-item-title {
+.swapper img:first-of-type {
+	opacity: 1;
+	z-index: 1;
+}
+
+.swapper img:last-of-type {
+	opacity: 0;
+	z-index: 2;
+}
+
+/* Controller tall companion column */
+.controller {
+	height: var(--col-two-height);
+	width: 100%;
+	border-radius: 6px;
+	overflow: hidden;
+	background: #141414;
+	box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+}
+
+.controller img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 6px;
+	display: block;
+}
+
+/* Dual Progress Indicator (from tt.md) */
+.progress {
+	position: absolute;
+	height: min(100px, 20%);
+	width: 6px;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	z-index: 10;
+}
+
+.swapper .progress {
+	right: 12px;
+}
+
+.scene5-item:nth-child(even) .swapper .progress {
+	left: 12px;
+	right: auto;
+}
+
+.progress > div {
+	border-radius: 100px;
+	background: rgba(255, 255, 255, 0.25);
+	flex: 1;
+	position: relative;
+	overflow: hidden;
+}
+
+.progress div > div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 0%;
+	border-radius: 100px;
+	background: var(--base-200);
+	box-shadow: 0 0 10px var(--base-200);
+}
+
+/* Editorial Caption Overlay */
+.caption {
 	position: absolute;
 	bottom: 1.2rem;
 	left: 1.2rem;
 	right: 1.2rem;
-	padding: 0.6rem 1rem;
-	background: rgba(15, 15, 15, 0.75);
-	backdrop-filter: blur(8px);
-	border-radius: 30px;
-	font-size: 0.78rem;
+	padding: 1.2rem 1.4rem;
+	background: rgba(15, 15, 15, 0.85);
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 6px;
+	z-index: 5;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.caption h2 {
+	font-family: 'Cinzel', serif;
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	letter-spacing: 0.1em;
 	color: var(--base-100);
 }
 
+.caption p {
+	font-size: 0.82rem;
+	text-transform: none;
+	color: rgba(240, 240, 230, 0.7);
+	line-height: 1.4;
+}
+
+/* Responsive queries */
+@media (max-width: 900px) {
+	.scene5-crossfades {
+		padding: 5rem 0 6rem;
+	}
+
+	.scene5-items {
+		gap: 6rem;
+	}
+
+	.image-box,
+	.scene5-item:nth-child(even) .image-box {
+		display: flex;
+		flex-direction: column;
+		gap: 3rem;
+		padding: 1rem 1.5rem;
+	}
+
+	.controller {
+		height: 60svh;
+		order: 1;
+	}
+
+	.swapper {
+		height: 48svh;
+		order: 2;
+	}
+}
+
+
 /* ==========================================================================
-   SCENE 6: FULL-SCREEN CURTAIN WIPE / DAY-TO-NIGHT REVEAL
+   SCENE 6: DUAL-COLUMN ARCHITECTURAL MORPH (sw.md Pure Slide Experience)
    ========================================================================== */
-.curtain-section {
+.scene6-section {
 	position: relative;
 	width: 100%;
 	height: 100svh;
@@ -927,356 +1056,373 @@ p {
 	z-index: 7;
 }
 
-.curtain-container {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
-}
-
-/* Background Synchronized Kinetic Typography */
-.curtain-hero-headline {
+/* Minimalist HUD Telemetry Strip */
+.scene6-hud {
 	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none;
-	z-index: 3;
-}
-
-.headline-layer {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 2vw;
-	font-size: clamp(3.5rem, 8.5vw, 9rem);
-	font-weight: 800;
-	letter-spacing: -0.04em;
-	text-transform: uppercase;
-	line-height: 0.9;
-	user-select: none;
-	white-space: nowrap;
-}
-
-.headline-day {
-	color: transparent;
-	-webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.45);
-	text-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-	z-index: 3;
-}
-
-.headline-night {
-	color: #fff;
-	text-shadow: 0 0 35px rgba(255, 255, 255, 0.35), 0 10px 50px rgba(0, 0, 0, 0.8);
-	z-index: 4;
-	clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%);
-	will-change: clip-path;
-}
-
-.word-divider {
-	color: var(--base-200);
-	opacity: 0.85;
-	font-weight: 300;
-}
-
-/* Live Telemetry HUD Bar */
-.curtain-hud {
-	position: absolute;
-	top: 2.5rem;
-	left: 5vw;
-	right: 5vw;
+	top: 2.2rem;
+	left: 4vw;
+	right: 4vw;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0.75rem 1.6rem;
-	background: rgba(15, 15, 15, 0.6);
-	backdrop-filter: blur(16px);
-	border: 1px solid rgba(240, 240, 230, 0.15);
+	padding: 0.65rem 1.6rem;
+	background: rgba(10, 10, 10, 0.55);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(255, 255, 255, 0.12);
 	border-radius: 999px;
 	color: var(--base-100);
-	font-size: 0.75rem;
-	letter-spacing: 0.14em;
+	font-size: 0.72rem;
+	letter-spacing: 0.16em;
 	text-transform: uppercase;
-	z-index: 6;
+	z-index: 25;
 	pointer-events: none;
 }
 
-.hud-tag {
+.scene6-hud .hud-tag {
 	font-weight: 700;
 	color: var(--base-200);
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: 0.55rem;
 }
 
-.hud-tag::before {
+.scene6-hud .hud-tag::before {
 	content: '';
 	display: inline-block;
 	width: 6px;
 	height: 6px;
 	background: var(--base-200);
 	border-radius: 50%;
-	box-shadow: 0 0 8px var(--base-200);
+	box-shadow: 0 0 10px var(--base-200);
 }
 
-.hud-time {
+.scene6-hud .hud-center {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.scene6-hud .hud-label,
+.scene6-hud .lux-label {
+	color: rgba(240, 240, 230, 0.4);
+	font-size: 0.62rem;
+	letter-spacing: 0.2em;
+}
+
+.scene6-hud .hud-time {
 	font-variant-numeric: tabular-nums;
 	font-weight: 700;
 	font-size: 0.85rem;
-	letter-spacing: 0.1em;
+	letter-spacing: 0.08em;
+	color: #fff;
 }
 
-.hud-coords {
-	opacity: 0.6;
+.scene6-hud .hud-coords {
+	opacity: 0.55;
+	font-size: 0.68rem;
 }
 
-.hud-lux {
+.scene6-hud .hud-lux {
 	opacity: 0.9;
+	font-variant-numeric: tabular-nums;
 }
 
-.curtain-layer {
+.scene6-hud .lux-val {
+	font-weight: 600;
+	color: #fff;
+}
+
+/* Stage & Slides */
+.scene6-stage {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.scene6-slide {
 	position: absolute;
 	inset: 0;
 	width: 100%;
 	height: 100%;
+	display: flex;
+	align-items: stretch;
+	overflow: hidden;
 }
 
-.curtain-img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	transform-origin: center center;
-	will-change: transform, filter;
-}
-
-.layer-base {
-	z-index: 1;
-}
-
-.layer-top {
+.slide-day {
 	z-index: 2;
-	clip-path: polygon(100% 0%, 100% 0%, 100% 100%, 100% 100%);
+	background: #141414;
+}
+
+.slide-night {
+	z-index: 3;
+	background: #080a0f;
+	clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
 	will-change: clip-path;
 }
 
-.curtain-overlay {
-	position: absolute;
-	inset: 0;
-	background: radial-gradient(circle at center, rgba(15, 15, 15, 0.2) 0%, rgba(15, 15, 15, 0.65) 100%);
-	pointer-events: none;
+/* Dual Column Layout (from sw.md) */
+.scene6-col {
+	flex-basis: 50%;
+	position: relative;
+	height: 100%;
 }
 
-/* Informational Cards */
-.curtain-info {
-	position: absolute;
-	bottom: 3.5rem;
-	max-width: 480px;
-	padding: 2.2rem 2.4rem;
-	background: rgba(12, 12, 12, 0.82);
-	backdrop-filter: blur(24px);
-	-webkit-backdrop-filter: blur(24px);
-	border: 1px solid rgba(240, 240, 230, 0.16);
-	border-radius: 12px;
-	color: var(--base-100);
+.scene6-col.col-content {
+	position: relative;
 	z-index: 5;
-	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-	will-change: transform, opacity;
+	display: flex;
+	align-items: stretch;
+	background: #d1cbc4;
+	color: #242423;
+	transition: background 0.5s ease;
 }
 
-.info-left {
-	left: 5vw;
+.slide-night .scene6-col.col-content {
+	background: #18202c;
+	color: #f0f0e6;
 }
 
-.info-right {
-	right: 5vw;
+.col-content-inner {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	width: 100%;
+	height: 100%;
+	padding: 5vw 5vw 6vw;
+	overflow: hidden;
 }
 
-.info-badge {
+/* Phase Tag */
+.scene6-phase {
 	display: flex;
 	align-items: center;
-	gap: 0.6rem;
-	margin-bottom: 0.8rem;
+	gap: 0.65rem;
+	margin-bottom: 1.2rem;
 }
 
-.badge-dot {
+.phase-dot {
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
-	background: #e2a03f;
-	box-shadow: 0 0 10px #e2a03f;
+}
+
+.day-dot {
+	background: #c2410c;
+	box-shadow: 0 0 10px rgba(194, 65, 12, 0.7);
 }
 
 .night-dot {
-	background: #4facfe;
-	box-shadow: 0 0 10px #4facfe;
+	background: #38bdf8;
+	box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
 }
 
-.info-phase {
-	font-size: 0.76rem;
-	letter-spacing: 0.18em;
+.phase-tag {
+	font-size: 0.75rem;
+	letter-spacing: 0.2em;
 	text-transform: uppercase;
-	color: rgba(240, 240, 230, 0.85);
 	font-weight: 700;
-	display: inline-block;
+	color: rgba(36, 36, 35, 0.7);
 }
 
-.curtain-title {
-	font-size: clamp(1.8rem, 2.6vw, 2.5rem);
-	font-weight: 600;
+.slide-night .phase-tag {
+	color: rgba(240, 240, 230, 0.7);
+}
+
+/* Monumental Split Headlines (Cinzel Serif from sw.md) */
+.scene6-title {
+	font-family: 'Cinzel', serif;
+	font-size: clamp(3.4rem, 6.8vw, 7.2rem);
+	font-weight: 400;
 	text-transform: uppercase;
-	letter-spacing: -0.02em;
-	line-height: 1.12;
-	margin-bottom: 0.9rem;
-	display: flex;
-	flex-direction: column;
+	line-height: 0.92;
+	letter-spacing: -0.04em;
+	color: #242423;
+	margin: 0 0 2.2vw 0;
 }
 
-.title-row {
+.title-night {
+	color: #f0f0e6;
+}
+
+.scene6-title .line {
+	display: block;
+	overflow: hidden;
+	padding-bottom: 0.08em;
+}
+
+.scene6-title .line:nth-of-type(even) {
+	margin-top: -0.5vw;
+}
+
+.scene6-title .line__inner {
+	display: block;
+	will-change: transform;
+}
+
+/* Content Wrap & Text */
+.scene6-content-wrap {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.scene6-txt {
+	max-width: 24vw;
+	font-size: clamp(0.88rem, 1.1vw, 1.05rem);
+	line-height: 1.55;
+	color: rgba(36, 36, 35, 0.85);
+	font-weight: 400;
+	text-transform: none;
+	margin: 0;
+	order: 1;
+}
+
+.slide-night .scene6-txt {
+	color: rgba(240, 240, 230, 0.82);
+}
+
+/* Circular Slide Link (from sw.md) */
+.scene6-link {
+	position: relative;
+	order: 2;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	width: 75px;
+	height: 53px;
+	cursor: pointer;
+	text-decoration: none;
+	flex-shrink: 0;
+}
+
+.scene6-link .slide-link__circ {
+	width: 53px;
+	height: 53px;
+	border-radius: 50%;
+	border: 1px solid #242423;
+	transition: transform 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+}
+
+.slide-night .scene6-link .slide-link__circ {
+	border-color: #f0f0e6;
+}
+
+.scene6-link .slide-link__line {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	width: 64px;
+	height: 3px;
+	background: #242423;
+	transition: transform 0.4s ease, background 0.4s ease, width 0.4s ease;
+}
+
+.slide-night .scene6-link .slide-link__line {
+	background: #f0f0e6;
+}
+
+.scene6-link:hover .slide-link__circ {
+	transform: scale(1.15);
+	border-color: var(--base-200);
+}
+
+.scene6-link:hover .slide-link__line {
+	background: var(--base-200);
+	width: 75px;
+}
+
+/* Image Column & 160vh Parallax Wrapper (from sw.md) */
+.scene6-col.col-image {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+}
+
+.scene6-image-wrap {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 160vh;
+	will-change: transform;
+}
+
+.scene6-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 	display: block;
 }
 
-.highlight-sub {
-	color: rgba(240, 240, 230, 0.65);
-	font-style: italic;
-	font-family: serif;
-	text-transform: none;
-	font-size: 1.1em;
-	font-weight: 400;
-}
-
-.highlight-night {
-	color: #60a5fa;
-	text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
-}
-
-.curtain-desc {
-	font-size: 0.92rem;
-	text-transform: none;
-	color: rgba(240, 240, 230, 0.75);
-	line-height: 1.55;
-	margin-bottom: 1.4rem;
-}
-
-/* Metric Pills */
-.curtain-metrics {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.6rem;
-	border-top: 1px solid rgba(255, 255, 255, 0.1);
-	padding-top: 1.1rem;
-}
-
-.metric-pill {
-	display: flex;
-	flex-direction: column;
-	gap: 0.2rem;
-	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	border-radius: 6px;
-	padding: 0.35rem 0.75rem;
-}
-
-.metric-pill span {
-	font-size: 0.6rem;
-	letter-spacing: 0.12em;
-	color: rgba(240, 240, 230, 0.5);
-	font-weight: 700;
-}
-
-.metric-pill strong {
-	font-size: 0.78rem;
-	color: var(--base-100);
-	letter-spacing: 0.06em;
-}
-
-/* Curtain Divider Laser & Handle */
-.curtain-line {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 100%;
-	width: 2px;
-	background: rgba(255, 255, 255, 0.9);
-	z-index: 6;
-	box-shadow: 0 0 25px 2px rgba(255, 255, 255, 0.8), 0 0 50px rgba(153, 31, 31, 0.9);
-	will-change: left;
-}
-
-.curtain-laser {
-	position: absolute;
-	top: 0;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 4px;
-	height: 100%;
-	background: linear-gradient(
-		to bottom,
-		rgba(255, 255, 255, 0) 0%,
-		rgba(255, 255, 255, 0.9) 20%,
-		var(--base-200) 50%,
-		rgba(255, 255, 255, 0.9) 80%,
-		rgba(255, 255, 255, 0) 100%
-	);
-	filter: blur(1px);
-}
-
-.curtain-handle {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	display: flex;
-	align-items: center;
-	gap: 0.7rem;
-	padding: 0.65rem 1.4rem;
-	background: rgba(15, 15, 15, 0.9);
-	color: var(--base-100);
-	border: 1px solid rgba(255, 255, 255, 0.35);
-	font-size: 0.72rem;
-	letter-spacing: 0.22em;
-	font-weight: 700;
-	border-radius: 999px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 25px rgba(153, 31, 31, 0.5);
-	white-space: nowrap;
-	backdrop-filter: blur(8px);
-}
-
-.handle-arrow {
-	font-size: 0.9rem;
-	color: var(--base-200);
-	animation: pulseArrows 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes pulseArrows {
-	0% { transform: scale(0.9); opacity: 0.7; }
-	100% { transform: scale(1.15); opacity: 1; }
-}
-
-@media (max-width: 768px) {
-	.curtain-hud {
-		top: 1.5rem;
-		font-size: 0.65rem;
+/* Responsive Styles for Dual Column */
+@media (max-width: 900px) {
+	.scene6-hud {
+		top: 1.2rem;
+		left: 3vw;
+		right: 3vw;
+		font-size: 0.62rem;
 		padding: 0.5rem 1rem;
 	}
-	.hud-coords, .hud-lux {
+
+	.scene6-hud .hud-coords,
+	.scene6-hud .hud-lux {
 		display: none;
 	}
-	.headline-layer {
-		font-size: clamp(2.5rem, 11vw, 4.5rem);
-		gap: 1.2vw;
+
+	.scene6-slide {
+		flex-direction: column-reverse;
 	}
-	.curtain-info {
-		bottom: 2rem;
-		left: 1rem !important;
-		right: 1rem !important;
-		max-width: none;
-		padding: 1.5rem;
+
+	.scene6-col {
+		flex-basis: auto;
+		width: 100%;
+	}
+
+	.scene6-col.col-content {
+		height: 55%;
+		z-index: 5;
+	}
+
+	.col-content-inner {
+		padding: 2.5rem 2rem 2rem;
+	}
+
+	.scene6-col.col-image {
+		height: 45%;
+	}
+
+	.scene6-image-wrap {
+		height: 120%;
+	}
+
+	.scene6-title {
+		font-size: clamp(2.6rem, 8.5vw, 4.2rem);
+		margin-bottom: 1rem;
+	}
+
+	.scene6-content-wrap {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 1.2rem;
+	}
+
+	.scene6-txt {
+		max-width: 100%;
+		order: 1;
+	}
+
+	.scene6-link {
+		order: 2;
+		align-self: flex-start;
 	}
 }
+
 
 /* ==========================================================================
    SCENE 7: MONUMENTAL PORTAL ZOOM & KINETIC FOOTER
@@ -1320,7 +1466,7 @@ p {
 .portal-overlay {
 	position: absolute;
 	inset: 0;
-	background: radial-gradient(circle, rgba(15,15,15,0.2) 20%, rgba(15,15,15,0.75) 100%);
+	background: radial-gradient(circle, rgba(15, 15, 15, 0.2) 20%, rgba(15, 15, 15, 0.75) 100%);
 }
 
 .portal-content {
@@ -1441,6 +1587,7 @@ p {
    RESPONSIVE QUERIES
    ========================================================================== */
 @media (max-width: 1000px) {
+
 	.hero-content h1,
 	.hero-outro-content h1 {
 		width: 90%;
@@ -1471,22 +1618,13 @@ p {
 		height: 48svh;
 	}
 
-	.runway-columns {
-		grid-template-columns: 1fr;
-	}
 
-	.runway-col.col-2,
-	.runway-col.col-3 {
-		display: none;
-	}
-
-	.curtain-info {
-		max-width: 90%;
-		bottom: 2rem;
+	.scene6-slide {
+		flex-direction: column-reverse;
 	}
 
 	.footer-top {
 		flex-direction: column;
 		align-items: flex-start;
 	}
-}
+}
