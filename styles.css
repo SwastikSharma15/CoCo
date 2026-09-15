@@ -552,7 +552,7 @@ p {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	font-weight: 600;
 	overflow: hidden;
-	z-index: 4;
+	z-index: 8;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -659,7 +659,7 @@ p {
 	background-color: var(--base-100);
 	color: var(--base-300);
 	overflow: hidden;
-	z-index: 5;
+	z-index: 9;
 }
 
 .stack-container {
@@ -720,33 +720,47 @@ p {
 	left: 0;
 	width: 100%;
 	opacity: 0;
-	transform: translateY(20px);
-	transition: opacity 0.5s ease, transform 0.5s ease;
 	pointer-events: none;
 }
 
 .stack-title-item.active {
 	opacity: 1;
-	transform: translateY(0);
 	pointer-events: auto;
 }
 
-.stack-title-item h3 {
-	font-size: clamp(2.4rem, 4vw, 3.8rem);
+.stack-title-item .stack-title {
+	font-family: 'Cinzel', serif;
+	font-size: clamp(2.4rem, 4.2vw, 4rem);
 	font-weight: 500;
-	line-height: 1.05;
+	line-height: 0.96;
 	text-transform: uppercase;
 	margin-bottom: 1.2rem;
 	letter-spacing: -0.02em;
 	color: var(--base-300);
 }
 
-.stack-title-item p {
+.stack-title-item .stack-title .line {
+	display: block;
+	overflow: hidden;
+	padding-bottom: 0.08em;
+}
+
+.stack-title-item .stack-title .line:nth-of-type(even) {
+	margin-top: -0.2vw;
+}
+
+.stack-title-item .stack-title .line__inner {
+	display: block;
+	will-change: transform, opacity;
+}
+
+.stack-title-item .stack-txt {
 	font-size: clamp(1rem, 1.3vw, 1.25rem);
 	line-height: 1.45;
 	text-transform: none;
 	color: rgba(15, 15, 15, 0.7);
 	max-width: 480px;
+	will-change: transform, opacity;
 }
 
 .stack-right {
@@ -816,7 +830,7 @@ p {
 	color: var(--base-100);
 	padding: 8rem 0 10rem;
 	overflow: hidden;
-	z-index: 6;
+	z-index: 10;
 
 	--left-pad: clamp(1.5rem, 5vw, 4rem);
 	--container-width: calc(100vw - (var(--left-pad) * 2));
@@ -1430,10 +1444,10 @@ p {
 .portal-section {
 	position: relative;
 	width: 100%;
-	background-color: var(--base-300);
+	background: radial-gradient(ellipse at 50% 20%, #151a24 0%, #0a0c10 60%, #050608 100%);
 	color: var(--base-100);
 	overflow: hidden;
-	z-index: 8;
+	z-index: 11;
 }
 
 .portal-wrap {
@@ -1444,6 +1458,7 @@ p {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	background: transparent;
 }
 
 .portal-iris {
@@ -1451,7 +1466,9 @@ p {
 	inset: 0;
 	width: 100%;
 	height: 100%;
-	clip-path: circle(12% at 50% 50%);
+	clip-path: inset(10% 8% round 24px);
+	border-radius: 0;
+	box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
 	will-change: clip-path, transform;
 }
 
@@ -1459,14 +1476,16 @@ p {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	transform: scale(1.4);
+	transform: scale(1.25);
 	will-change: transform;
 }
 
 .portal-overlay {
 	position: absolute;
 	inset: 0;
-	background: radial-gradient(circle, rgba(15, 15, 15, 0.2) 20%, rgba(15, 15, 15, 0.75) 100%);
+	background: linear-gradient(180deg, rgba(8, 10, 15, 0.3) 0%, rgba(8, 10, 15, 0.65) 100%);
+	backdrop-filter: blur(0px);
+	transition: backdrop-filter 0.3s ease;
 }
 
 .portal-content {

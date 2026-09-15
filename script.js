@@ -368,292 +368,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   // =========================================================================
-  // SCENE 3.5: 3D FOLDED MARQUEE ACCORDION (exact tt.md logic & ranges)
-  // =========================================================================
-  const foldSection = document.querySelector(".fold-section");
-  if (foldSection) {
-    const centerFold = document.getElementById("center-fold");
-    const centerContent = document.getElementById("center-content");
-    const foldsContent = Array.from(foldSection.querySelectorAll(".fold-content"));
-
-    // Pinned wrapper timeline for the fold effect
-    const foldTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: foldSection,
-        start: "top top",
-        end: "+=320%",
-        pin: true,
-        pinSpacing: true,
-        scrub: 1,
-        invalidateOnRefresh: true,
-      },
-    });
-
-    // Marquee horizontal animation scrub: exactly [-500, -1500] and [-500, 0]
-    // Animate across all folds simultaneously
-    [0, 1, 2, 3].forEach((index) => {
-      const [xStart, xEnd] =
-        index % 2 === 0 ? [-500, -1500] : [-500, 0];
-      const tracks = foldSection.querySelectorAll(
-        `.fold-content .marquee:nth-child(${index + 1}) .track`,
-      );
-
-      foldTimeline.fromTo(
-        tracks,
-        { x: xStart },
-        {
-          x: xEnd,
-          ease: "none",
-          duration: 1,
-        },
-        0,
-      );
-    });
-
-    // Vertical fold content travel calculation from tt.md:
-    // overflowHeight = centerContent.clientHeight - centerFold.clientHeight
-    const getOverflow = () => {
-      if (!centerContent || !centerFold) return 600;
-      return Math.max(0, centerContent.scrollHeight - centerFold.clientHeight);
-    };
-
-    foldTimeline.fromTo(
-      foldsContent,
-      { y: 0 },
-      {
-        y: () => -getOverflow(),
-        ease: "none",
-        duration: 1,
-      },
-      0,
-    );
-  }
-
-  // =========================================================================
-  // SCENE 4: PINNED 3D OVERLAPPING STACK CARDS
-  // =========================================================================
-  const stackSection = document.querySelector(".stack-section");
-  const stackCards = gsap.utils.toArray(".stack-card");
-  const stackTitleItems = gsap.utils.toArray(".stack-title-item");
-  const activeIndexEl = document.querySelector(".stack-counter .active-index");
-
-  // Initial states: card 1 starts in view, cards 2-4 start below
-  stackCards.forEach((card, idx) => {
-    if (idx > 0) {
-      gsap.set(card, { yPercent: 120, scale: 0.95, filter: "brightness(0.8)" });
-    } else {
-      gsap.set(card, { yPercent: 0, scale: 1, filter: "brightness(1)" });
-    }
-  });
-
-  const stackTimeline = gsap.timeline({
-    scrollTrigger: {
-      trigger: stackSection,
-      start: "top top",
-      end: "+=400%",
-      pin: true,
-      pinSpacing: true,
-      scrub: 1,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        // Switch titles and counter based on progress
-        const step = Math.min(3, Math.floor(self.progress * 4));
-        activeIndexEl.textContent = `0${step + 1}`;
-        stackTitleItems.forEach((title, i) => {
-          if (i === step) {
-            title.classList.add("active");
-          } else {
-            title.classList.remove("active");
-          }
-        });
-      },
-    },
-  });
-
-  // Animate cards stacking one over another
-  // Card 2 slides up, Card 1 scales down and dims
-  stackTimeline.to(
-    stackCards[0],
-    { scale: 0.92, filter: "brightness(0.65)", duration: 0.8, ease: "power2.out" },
-    0.2,
-  );
-  stackTimeline.to(
-    stackCards[1],
-    { yPercent: 0, scale: 1, filter: "brightness(1)", duration: 1, ease: "power2.out" },
-    0.2,
-  );
-
-  // Card 3 slides up, Cards 1 & 2 step back
-  stackTimeline.to(
-    stackCards[0],
-    { scale: 0.86, filter: "brightness(0.4)", duration: 0.8, ease: "power2.out" },
-    1.2,
-  );
-  stackTimeline.to(
-    stackCards[1],
-    { scale: 0.93, filter: "brightness(0.65)", duration: 0.8, ease: "power2.out" },
-    1.2,
-  );
-  stackTimeline.to(
-    stackCards[2],
-    { yPercent: 0, scale: 1, filter: "brightness(1)", duration: 1, ease: "power2.out" },
-    1.2,
-  );
-
-  // Card 4 slides up, Cards 1, 2, 3 step back
-  stackTimeline.to(
-    stackCards[1],
-    { scale: 0.87, filter: "brightness(0.4)", duration: 0.8, ease: "power2.out" },
-    2.2,
-  );
-  stackTimeline.to(
-    stackCards[2],
-    { scale: 0.94, filter: "brightness(0.65)", duration: 0.8, ease: "power2.out" },
-    2.2,
-  );
-  stackTimeline.to(
-    stackCards[3],
-    { yPercent: 0, scale: 1, filter: "brightness(1)", duration: 1, ease: "power2.out" },
-    2.2,
-  );
-
-  // =========================================================================
-  // SCENE 5: SCROLL-DRIVEN ARCHITECTURAL CROSSFADES (from tt.md)
-  // =========================================================================
-  const scene5Swappers = document.querySelectorAll(".scene5-crossfades .swapper");
-
-  scene5Swappers.forEach((swapper) => {
-    const parentBox = swapper.closest(".image-box");
-    const controller = parentBox ? parentBox.querySelector(".controller") : null;
-    const images = swapper.querySelectorAll("img");
-    const progressDiv = swapper.querySelector(".progress");
-    const progressMarkers = swapper.querySelectorAll(".progress > div div");
-
-    // Responsive setup: desktop vs mobile
-    ScrollTrigger.matchMedia({
-      // Desktop: Smooth translation down the tall controller column + crisp crossfade + dual progress
-      "(min-width: 901px)": function () {
-        if (controller) {
-          const moveDist = () => controller.offsetHeight - swapper.offsetHeight;
-          gsap.to(swapper, {
-            y: () => moveDist(),
-            ease: "none",
-            scrollTrigger: {
-              trigger: parentBox,
-              start: "top center",
-              end: "bottom center",
-              scrub: 1,
-              invalidateOnRefresh: true,
-            },
-          });
-        }
-
-        // Fast & crisp image crossfade centered around midpoint, completing fully (opacity: 1)
-        if (images.length > 1) {
-          gsap.fromTo(
-            images[1],
-            { opacity: 0 },
-            {
-              opacity: 1,
-              ease: "power2.inOut",
-              scrollTrigger: {
-                trigger: parentBox,
-                start: "center 68%",
-                end: "center 36%",
-                scrub: true,
-              },
-            },
-          );
-        }
-
-        // Progress bar markers completing in sequence
-        if (progressMarkers.length >= 2) {
-          gsap.fromTo(
-            progressMarkers[0],
-            { height: "0%" },
-            {
-              height: "100%",
-              ease: "none",
-              scrollTrigger: {
-                trigger: parentBox,
-                start: "top 60%",
-                end: "center 55%",
-                scrub: true,
-              },
-            },
-          );
-          gsap.fromTo(
-            progressMarkers[1],
-            { height: "0%" },
-            {
-              height: "100%",
-              ease: "none",
-              scrollTrigger: {
-                trigger: parentBox,
-                start: "center 55%",
-                end: "bottom 55%",
-                scrub: true,
-              },
-            },
-          );
-        }
-      },
-
-      // Mobile: In-place fast crossfade & progress driven by swapper trigger
-      "(max-width: 900px)": function () {
-        if (images.length > 1) {
-          gsap.fromTo(
-            images[1],
-            { opacity: 0 },
-            {
-              opacity: 1,
-              ease: "power2.inOut",
-              scrollTrigger: {
-                trigger: swapper,
-                start: "top 65%",
-                end: "bottom 45%",
-                scrub: true,
-              },
-            },
-          );
-        }
-
-        if (progressMarkers.length >= 2) {
-          gsap.fromTo(
-            progressMarkers[0],
-            { height: "0%" },
-            {
-              height: "100%",
-              ease: "none",
-              scrollTrigger: {
-                trigger: swapper,
-                start: "top 75%",
-                end: "center center",
-                scrub: true,
-              },
-            },
-          );
-          gsap.fromTo(
-            progressMarkers[1],
-            { height: "0%" },
-            {
-              height: "100%",
-              ease: "none",
-              scrollTrigger: {
-                trigger: swapper,
-                start: "center center",
-                end: "bottom 35%",
-                scrub: true,
-              },
-            },
-          );
-        }
-      },
-    });
-  });
-
-
-  // =========================================================================
   // =========================================================================
   // =========================================================================
   // SCENE 6: DUAL-COLUMN ARCHITECTURAL MORPH (sw.md Pure Slide Experience)
@@ -849,14 +563,401 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // =========================================================================
-  // SCENE 7: MONUMENTAL PORTAL ZOOM & KINETIC FOOTER
+  // SCENE 3.5: 3D FOLDED MARQUEE ACCORDION (exact tt.md logic & ranges)
+  // =========================================================================
+  const foldSection = document.querySelector(".fold-section");
+  if (foldSection) {
+    const centerFold = document.getElementById("center-fold");
+    const centerContent = document.getElementById("center-content");
+    const foldsContent = Array.from(foldSection.querySelectorAll(".fold-content"));
+
+    // Pinned wrapper timeline for the fold effect
+    const foldTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: foldSection,
+        start: "top top",
+        end: "+=320%",
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    // Marquee horizontal animation scrub: exactly [-500, -1500] and [-500, 0]
+    // Animate across all folds simultaneously
+    [0, 1, 2, 3].forEach((index) => {
+      const [xStart, xEnd] =
+        index % 2 === 0 ? [-500, -1500] : [-500, 0];
+      const tracks = foldSection.querySelectorAll(
+        `.fold-content .marquee:nth-child(${index + 1}) .track`,
+      );
+
+      foldTimeline.fromTo(
+        tracks,
+        { x: xStart },
+        {
+          x: xEnd,
+          ease: "none",
+          duration: 1,
+        },
+        0,
+      );
+    });
+
+    // Vertical fold content travel calculation from tt.md:
+    // overflowHeight = centerContent.clientHeight - centerFold.clientHeight
+    const getOverflow = () => {
+      if (!centerContent || !centerFold) return 600;
+      return Math.max(0, centerContent.scrollHeight - centerFold.clientHeight);
+    };
+
+    foldTimeline.fromTo(
+      foldsContent,
+      { y: 0 },
+      {
+        y: () => -getOverflow(),
+        ease: "none",
+        duration: 1,
+      },
+      0,
+    );
+  }
+
+  // =========================================================================
+  // SCENE 4: PINNED 3D OVERLAPPING STACK CARDS (sw.md Skiper17 Animation + Scene 6 Text)
+  // =========================================================================
+  const stackSection = document.querySelector(".stack-section");
+  const stackCards = gsap.utils.toArray(".stack-card");
+  const stackTitleItems = gsap.utils.toArray(".stack-title-item");
+  const activeIndexEl = document.querySelector(".stack-counter .active-index");
+  const totalCards = stackCards.length; // 4 cards
+
+  // Initialize card positions & rotations strictly following sw.md Skiper 17:
+  // Card 0 at y: "0%", scale: 1, rotation: 0
+  // Cards 1..N at y: "100%", scale: 1, rotation: 0
+  if (stackCards[0]) {
+    gsap.set(stackCards[0], { y: "0%", scale: 1, rotation: 0, transformOrigin: "center center" });
+  }
+  for (let i = 1; i < totalCards; i++) {
+    if (stackCards[i]) {
+      gsap.set(stackCards[i], { y: "100%", scale: 1, rotation: 0, transformOrigin: "center center" });
+    }
+  }
+
+  // Initialize Scene 6 style text animations:
+  // Active item lines at y: 0, opacity: 1, txt at x: 0, opacity: 1
+  // Inactive item lines at y: 140, opacity: 0, txt at x: 60, opacity: 0
+  stackTitleItems.forEach((item, idx) => {
+    const lines = item.querySelectorAll(".line__inner");
+    const txt = item.querySelector(".stack-txt");
+    if (idx === 0) {
+      item.classList.add("active");
+      gsap.set(lines, { y: 0, opacity: 1 });
+      if (txt) gsap.set(txt, { x: 0, opacity: 1 });
+    } else {
+      item.classList.remove("active");
+      gsap.set(lines, { y: 140, opacity: 0 });
+      if (txt) gsap.set(txt, { x: 60, opacity: 0 });
+    }
+  });
+
+  // Timeline matching sw.md pin & scrub: 0.5 with totalCards - 1 steps
+  const stackTimeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: stackSection,
+      start: "top top",
+      end: `+=${window.innerHeight * (totalCards - 1)}`,
+      pin: true,
+      scrub: 0.5,
+      pinSpacing: true,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        // Counter readout
+        const step = Math.min(totalCards - 1, Math.floor(self.progress * totalCards));
+        if (activeIndexEl) {
+          activeIndexEl.textContent = `0${step + 1}`;
+        }
+      },
+    },
+  });
+
+  // Animate transitions between steps (i -> i + 1)
+  for (let i = 0; i < totalCards - 1; i++) {
+    const currentCard = stackCards[i];
+    const nextCard = stackCards[i + 1];
+    const currentTitleItem = stackTitleItems[i];
+    const nextTitleItem = stackTitleItems[i + 1];
+    const position = i;
+
+    // --- SW.MD CARD ANIMATION ---
+    // currentCard scales to 0.7 and rotates 5deg
+    // nextCard translates from y: 100% to y: 0%
+    if (currentCard && nextCard) {
+      stackTimeline.to(
+        currentCard,
+        {
+          scale: 0.7,
+          rotation: 5,
+          duration: 1,
+          ease: "none",
+        },
+        position,
+      );
+
+      stackTimeline.to(
+        nextCard,
+        {
+          y: "0%",
+          duration: 1,
+          ease: "none",
+        },
+        position,
+      );
+    }
+
+    // --- SCENE 6 TEXT ANIMATION ---
+    // Exit current title item: lines translate y: -120 and fade, txt moves x: -40 and fades (Scene 6 style)
+    if (currentTitleItem) {
+      const curLines = currentTitleItem.querySelectorAll(".line__inner");
+      const curTxt = currentTitleItem.querySelector(".stack-txt");
+
+      stackTimeline.to(
+        curLines,
+        {
+          y: -120,
+          opacity: 0,
+          stagger: 0.05,
+          duration: 0.38,
+          ease: "power3.in",
+          onComplete: () => {
+            currentTitleItem.classList.remove("active");
+          },
+          onReverseComplete: () => {
+            currentTitleItem.classList.add("active");
+          },
+        },
+        position + 0.08,
+      );
+
+      if (curTxt) {
+        stackTimeline.to(
+          curTxt,
+          {
+            x: -40,
+            opacity: 0,
+            duration: 0.32,
+            ease: "power2.in",
+          },
+          position + 0.08,
+        );
+      }
+    }
+
+    // Enter next title item: lines rise from y: 140 -> 0 with stagger & power4.out, txt slides in x: 60 -> 0 (Scene 6 style)
+    if (nextTitleItem) {
+      const nextLines = nextTitleItem.querySelectorAll(".line__inner");
+      const nextTxt = nextTitleItem.querySelector(".stack-txt");
+
+      stackTimeline.to(
+        nextTitleItem,
+        {
+          opacity: 1,
+          duration: 0.01,
+          onStart: () => {
+            nextTitleItem.classList.add("active");
+          },
+          onReverseComplete: () => {
+            nextTitleItem.classList.remove("active");
+          },
+        },
+        position + 0.46,
+      );
+
+      stackTimeline.fromTo(
+        nextLines,
+        { y: 140, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.08,
+          duration: 0.52,
+          ease: "power4.out",
+        },
+        position + 0.48,
+      );
+
+      if (nextTxt) {
+        stackTimeline.fromTo(
+          nextTxt,
+          { x: 60, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.48,
+            ease: "power3.out",
+          },
+          position + 0.52,
+        );
+      }
+    }
+  }
+
+  // =========================================================================
+  // SCENE 5: SCROLL-DRIVEN ARCHITECTURAL CROSSFADES (from tt.md)
+  // =========================================================================
+  const scene5Swappers = document.querySelectorAll(".scene5-crossfades .swapper");
+
+  scene5Swappers.forEach((swapper) => {
+    const parentBox = swapper.closest(".image-box");
+    const controller = parentBox ? parentBox.querySelector(".controller") : null;
+    const images = swapper.querySelectorAll("img");
+    const progressDiv = swapper.querySelector(".progress");
+    const progressMarkers = swapper.querySelectorAll(".progress > div div");
+
+    // Responsive setup: desktop vs mobile
+    ScrollTrigger.matchMedia({
+      // Desktop: Smooth translation down the tall controller column + crisp crossfade + dual progress
+      "(min-width: 901px)": function () {
+        if (controller) {
+          const moveDist = () => controller.offsetHeight - swapper.offsetHeight;
+          gsap.to(swapper, {
+            y: () => moveDist(),
+            ease: "none",
+            scrollTrigger: {
+              trigger: parentBox,
+              start: "top center",
+              end: "bottom center",
+              scrub: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+
+        // Fast & crisp image crossfade centered around midpoint, completing fully (opacity: 1)
+        if (images.length > 1) {
+          gsap.fromTo(
+            images[1],
+            { opacity: 0 },
+            {
+              opacity: 1,
+              ease: "power2.inOut",
+              scrollTrigger: {
+                trigger: parentBox,
+                start: "center 68%",
+                end: "center 36%",
+                scrub: true,
+              },
+            },
+          );
+        }
+
+        // Progress bar markers completing in sequence
+        if (progressMarkers.length >= 2) {
+          gsap.fromTo(
+            progressMarkers[0],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: parentBox,
+                start: "top 60%",
+                end: "center 55%",
+                scrub: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            progressMarkers[1],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: parentBox,
+                start: "center 55%",
+                end: "bottom 55%",
+                scrub: true,
+              },
+            },
+          );
+        }
+      },
+
+      // Mobile: In-place fast crossfade & progress driven by swapper trigger
+      "(max-width: 900px)": function () {
+        if (images.length > 1) {
+          gsap.fromTo(
+            images[1],
+            { opacity: 0 },
+            {
+              opacity: 1,
+              ease: "power2.inOut",
+              scrollTrigger: {
+                trigger: swapper,
+                start: "top 65%",
+                end: "bottom 45%",
+                scrub: true,
+              },
+            },
+          );
+        }
+
+        if (progressMarkers.length >= 2) {
+          gsap.fromTo(
+            progressMarkers[0],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: swapper,
+                start: "top 75%",
+                end: "center center",
+                scrub: true,
+              },
+            },
+          );
+          gsap.fromTo(
+            progressMarkers[1],
+            { height: "0%" },
+            {
+              height: "100%",
+              ease: "none",
+              scrollTrigger: {
+                trigger: swapper,
+                start: "center center",
+                end: "bottom 35%",
+                scrub: true,
+              },
+            },
+          );
+        }
+      },
+    });
+  });
+
+
+  // =========================================================================
+  // SCENE 7: MONUMENTAL ARCHITECTURAL LENS UNFOLD & KINETIC FOOTER (Option 2)
   // =========================================================================
   const portalSection = document.querySelector(".portal-section");
   const portalIris = document.querySelector(".portal-iris");
   const portalBg = document.querySelector(".portal-bg");
+  const portalOverlay = document.querySelector(".portal-overlay");
   const lineLeft = document.querySelector(".line-left");
   const lineRight = document.querySelector(".line-right");
   const portalSubtitle = document.querySelector(".portal-subtitle");
+
+  // Initial states for cinematic lens reveal
+  gsap.set(portalIris, {
+    clipPath: "inset(12% 8% round 24px)",
+    scale: 0.96,
+  });
+  gsap.set(portalBg, {
+    scale: 1.28,
+  });
 
   const portalTimeline = gsap.timeline({
     scrollTrigger: {
@@ -870,51 +971,68 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   });
 
-  // Portal iris expands from 12% aperture to 150% engulfing the entire viewport
+  // 1. Unfold from elegant architectural rounded window to full-bleed fullscreen immersion
   portalTimeline.to(
     portalIris,
     {
-      clipPath: "circle(150% at 50% 50%)",
+      clipPath: "inset(0% 0% round 0px)",
+      scale: 1,
       duration: 1,
       ease: "power2.inOut",
     },
     0,
   );
 
-  // Architectural background zooms in slowly
+  // 2. Cinematic slow zoom & parallax glide on the horizon image
   portalTimeline.to(
     portalBg,
     {
       scale: 1,
-      duration: 1,
+      duration: 1.2,
       ease: "power1.out",
     },
     0,
   );
 
-  // Kinetic typography slides into focus from opposing directions
-  portalTimeline.from(
+  // 3. Ambient lighting adjustment
+  if (portalOverlay) {
+    portalTimeline.to(
+      portalOverlay,
+      {
+        backgroundColor: "rgba(5, 7, 10, 0.45)",
+        duration: 1,
+      },
+      0,
+    );
+  }
+
+  // 4. Subtitle rises smoothly with subtle letter tracking
+  portalTimeline.fromTo(
     portalSubtitle,
+    { opacity: 0, y: 35, letterSpacing: "0.15em" },
     {
-      opacity: 0,
-      y: 30,
-      duration: 0.3,
+      opacity: 1,
+      y: 0,
+      letterSpacing: "0.3em",
+      duration: 0.5,
+      ease: "power2.out",
     },
-    0.2,
+    0.25,
   );
 
+  // 5. Opposing kinetic typography glides gracefully into center alignment
   portalTimeline.fromTo(
     lineLeft,
-    { xPercent: -50, opacity: 0 },
-    { xPercent: 0, opacity: 1, duration: 0.7, ease: "power2.out" },
-    0.2,
+    { xPercent: -45, opacity: 0 },
+    { xPercent: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
+    0.25,
   );
 
   portalTimeline.fromTo(
     lineRight,
-    { xPercent: 50, opacity: 0 },
-    { xPercent: 0, opacity: 1, duration: 0.7, ease: "power2.out" },
-    0.2,
+    { xPercent: 45, opacity: 0 },
+    { xPercent: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
+    0.25,
   );
 
   // Smooth back-to-top handler via Lenis
