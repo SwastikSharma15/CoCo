@@ -633,17 +633,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const activeIndexEl = document.querySelector(".stack-counter .active-index");
   const totalCards = stackCards.length; // 4 cards
 
-  // Initialize card positions & rotations strictly following sw.md Skiper 17:
-  // Card 0 at y: "0%", scale: 1, rotation: 0
-  // Cards 1..N at y: "100%", scale: 1, rotation: 0
-  if (stackCards[0]) {
-    gsap.set(stackCards[0], { y: "0%", scale: 1, rotation: 0, transformOrigin: "center center" });
-  }
-  for (let i = 1; i < totalCards; i++) {
-    if (stackCards[i]) {
-      gsap.set(stackCards[i], { y: "100%", scale: 1, rotation: 0, transformOrigin: "center center" });
+  // Set stacking order so earlier cards sit on top of later cards (Card 0 > Card 1 > Card 2 > Card 3)
+  stackCards.forEach((card, idx) => {
+    gsap.set(card, {
+      zIndex: totalCards - idx,
+      transformOrigin: "center center",
+    });
+    if (idx === 0) {
+      gsap.set(card, { y: "0%", scale: 1, rotation: 0 });
+    } else {
+      gsap.set(card, { y: "100%", scale: 1, rotation: 0 });
     }
-  }
+  });
 
   // Initialize Scene 6 style text animations:
   // Active item lines at y: 0, opacity: 1, txt at x: 0, opacity: 1
@@ -692,7 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- SW.MD CARD ANIMATION ---
     // currentCard scales to 0.7 and rotates 5deg
-    // nextCard translates from y: 100% to y: 0%
+    // nextCard translates from y: 100% to y: 0% on top of currentCard, while later cards remain behind it
     if (currentCard && nextCard) {
       stackTimeline.to(
         currentCard,
@@ -711,6 +712,12 @@ document.addEventListener("DOMContentLoaded", () => {
           y: "0%",
           duration: 1,
           ease: "none",
+          onStart: () => {
+            gsap.set(nextCard, { zIndex: 50 + (i + 1) });
+          },
+          onReverseComplete: () => {
+            gsap.set(nextCard, { zIndex: totalCards - (i + 1) });
+          },
         },
         position,
       );
