@@ -400,7 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
   gsap.set(nightTitleLines, { y: 160, opacity: 0 });
   if (nightTxt) gsap.set(nightTxt, { x: 80, opacity: 0 });
   if (nightLink) gsap.set(nightLink, { x: -60, opacity: 0 });
-  if (nightImgWrap) gsap.set(nightImgWrap, { y: "-35vh" });
+  if (nightImgWrap) gsap.set(nightImgWrap, { y: "-20vh" });
 
   // Interactive slide link effects from sw.md
   [dayLink, nightLink].forEach((link) => {
@@ -445,12 +445,13 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   });
 
-  // 1. Parallax drift on Day image wrapper (sw.md style: 160vh image gliding through window)
+  // 1. Parallax drift on Day image wrapper (smooth glide safely inside 160vh window)
   if (dayImgWrap) {
-    scene6Timeline.to(
+    scene6Timeline.fromTo(
       dayImgWrap,
+      { y: "-5vh" },
       {
-        y: "25vh",
+        y: "20vh",
         duration: 0.6,
         ease: "none",
       },
@@ -508,10 +509,11 @@ document.addEventListener("DOMContentLoaded", () => {
     0.3,
   );
 
-  // 4. Parallax drift on Night image wrapper (-35vh -> 15vh)
+  // 4. Parallax drift on Night image wrapper (-20vh -> 15vh safely inside 160vh window)
   if (nightImgWrap) {
-    scene6Timeline.to(
+    scene6Timeline.fromTo(
       nightImgWrap,
+      { y: "-10vh" },
       {
         y: "15vh",
         duration: 0.7,
