@@ -586,11 +586,21 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
 
-    // Marquee horizontal animation scrub: exactly [-500, -1500] and [-500, 0]
-    // Animate across all folds simultaneously
+    // Marquee horizontal animation scrub: alternating directions and staggered offsets
+    // Row 0 (TARNISHED): Leftward [-500 -> -1500]
+    // Row 1 (DEMIGODS): Rightward [-500 -> 0]
+    // Row 2 (SHARDBEARERS): Leftward [-400 -> -1450]
+    // Row 3 (ELDEN LORD): Positioned to the left with text preceding and following the golden focus
+    const rowRanges = [
+      [-500, -1500], // Row 0: Left
+      [-500, 0],     // Row 1: Right
+      [-400, -1450], // Row 2: Left
+      [-800, -150],  // Row 3 (ELDEN LORD): Starts left with text to its left, moves right smoothly
+    ];
+
     [0, 1, 2, 3].forEach((index) => {
-      const [xStart, xEnd] =
-        index % 2 === 0 ? [-500, -1500] : [-500, 0];
+      const [xStart, xEnd] = rowRanges[index];
+
       const tracks = foldSection.querySelectorAll(
         `.fold-content .marquee:nth-child(${index + 1}) .track`,
       );
