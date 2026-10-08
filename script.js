@@ -62,74 +62,136 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const heroVideo = document.querySelector("#heroVideo");
+
+  // Keep video paused and ready for scrubbing
+  if (heroVideo) {
+    heroVideo.pause();
+    heroVideo.currentTime = 0;
+    if (heroVideo.readyState < 1) {
+      heroVideo.addEventListener("loadedmetadata", () => {
+        ScrollTrigger.refresh();
+      }, { once: true });
+    }
+  }
+
+  let targetVideoTime = 0;
+  let isSeeking = false;
+
+  // Optimized smooth video seek loop
+  function updateVideoTime() {
+    if (heroVideo && !isNaN(heroVideo.duration) && heroVideo.duration > 0) {
+      const diff = targetVideoTime - heroVideo.currentTime;
+      // If there is meaningful difference and video is ready to seek
+      if (Math.abs(diff) > 0.015 && !isSeeking) {
+        isSeeking = true;
+        // Use fastSeek if supported by browser for hardware-accelerated instant seek
+        if ("fastSeek" in heroVideo) {
+          heroVideo.fastSeek(targetVideoTime);
+        } else {
+          heroVideo.currentTime = targetVideoTime;
+        }
+      }
+    }
+  }
+
+  if (heroVideo) {
+    heroVideo.addEventListener("seeked", () => {
+      isSeeking = false;
+      // If user kept scrolling while seeking, immediately catch up to newest target
+      if (Math.abs(targetVideoTime - heroVideo.currentTime) > 0.02) {
+        if ("fastSeek" in heroVideo) {
+          heroVideo.fastSeek(targetVideoTime);
+        } else {
+          heroVideo.currentTime = targetVideoTime;
+        }
+      }
+    });
+  }
+
   const heroScrollTimeline = gsap.timeline({
     scrollTrigger: {
       trigger: heroSection,
       start: "top top",
-      end: "+=480%",
+      end: "+=520%",
       pin: true,
       pinSpacing: true,
-      scrub: 1,
+      scrub: 1.2,
       invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        if (!heroVideo || isNaN(heroVideo.duration) || heroVideo.duration <= 0) return;
+        const videoPlayPhaseProgress = Math.min(Math.max(self.progress / 0.48, 0), 1);
+        targetVideoTime = videoPlayPhaseProgress * Math.max(heroVideo.duration - 0.05, 0);
+        updateVideoTime();
+      },
     },
   });
 
-  // Initial title lines stagger up slightly, then fade/zoom on initial scroll
+  // Initial title lines stagger up slightly and fade out early during video playback
   heroScrollTimeline.to(
     ".hero-content .title-line",
     {
       yPercent: -40,
       opacity: 0.2,
       stagger: 0.04,
-      duration: 0.3,
+      duration: 0.2,
       ease: "power1.in",
     },
     0,
   );
   heroScrollTimeline.to(
     [".hero-eyebrow", ".hero-scroll-indicator"],
-    { opacity: 0, yPercent: -50, duration: 0.2 },
+    { opacity: 0, yPercent: -50, duration: 0.15 },
     0,
   );
 
-  // Background zooms from 1.5 -> 1.0
-  heroScrollTimeline.to(heroBackground, { scale: 1, duration: 0.5 }, 0);
+  // Background video subtle zoom/focus as it plays
+  heroScrollTimeline.fromTo(
+    heroBackground,
+    { scale: 1.05 },
+    { scale: 1, duration: 0.45, ease: "none" },
+    0,
+  );
+
+  // Video plays with scroll from 0 to 0.48.
+  // When the video is almost complete (at ~0.44 timeline progress), the hero revealer animation starts!
+  const revealerStart = 0.44;
 
   // Revealer line grows then blooms out
   heroScrollTimeline.to(
     heroRevealer,
     {
       clipPath: "polygon(49.5% 0%, 50.5% 0%, 50.5% 100%, 49.5% 100%)",
-      duration: 0.2,
+      duration: 0.12,
     },
-    0,
+    revealerStart,
   );
   heroScrollTimeline.to(
     heroRevealer,
     {
       clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-      duration: 0.3,
+      duration: 0.18,
     },
-    0.2,
+    revealerStart + 0.12,
   );
 
   // Revealer text appears in sync as revealer opens, then scales & parts
   heroScrollTimeline.fromTo(
     ".revealer-content",
     { opacity: 0, scale: 0.9, y: 30 },
-    { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: "power2.out" },
-    0.25,
+    { opacity: 1, scale: 1, y: 0, duration: 0.14, ease: "power2.out" },
+    revealerStart + 0.14,
   );
   heroScrollTimeline.to(
     ".revealer-content",
-    { opacity: 0, scale: 1.1, duration: 0.15, ease: "power1.in" },
-    0.42,
+    { opacity: 0, scale: 1.1, duration: 0.1, ease: "power1.in" },
+    revealerStart + 0.28,
   );
 
   // Cascading hero images: scale in from 0 to full screen one by one in the stack
-  const cascadeStart = 0.44;
-  const cascadeStagger = 0.08;
-  const cascadeDuration = 0.2;
+  const cascadeStart = revealerStart + 0.30; // 0.74
+  const cascadeStagger = 0.06;
+  const cascadeDuration = 0.16;
   heroImages.forEach((heroImage, index) => {
     heroScrollTimeline.to(
       heroImage,
